@@ -1,3 +1,4 @@
+const { setTmdbApiKey } = require("./utils/tmdbKey.js");
 const { resolveImdbId } = require("./utils/tmdb.js");
 const { applyFilters } = require("./utils/streamFilters.js");
 
