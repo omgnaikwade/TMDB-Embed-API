@@ -1,0 +1,14 @@
+{
+  "name": "tmdb-embed-api-cloudflare",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Cloudflare Workers build of TMDB Embed API with one-time TMDB key setup",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "setup:kv": "node scripts/setup-kv.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.44.0"
+  }
+}

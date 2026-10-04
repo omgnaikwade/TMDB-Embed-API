@@ -1,0 +1,12 @@
+name = "tmdb-embed-api"
+main = "worker.js"
+compatibility_date = "2026-10-04"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "TMDB_CONFIG"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"

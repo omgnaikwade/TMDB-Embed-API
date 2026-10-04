@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TMDB Embed API • Setup</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#08090c;color:#f5f7fb;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+.card{width:min(92vw,460px);padding:30px;border:1px solid #222631;border-radius:20px;background:#101219;box-shadow:0 20px 70px #0008}
+.logo{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#7c3aed,#2563eb);font-weight:900;font-size:21px;margin-bottom:18px}
+h1{margin:0 0 8px;font-size:25px}p{color:#9ca3af;line-height:1.5;margin:0 0 22px}
+label{display:block;font-size:13px;color:#cbd5e1;margin:0 0 8px}
+input{width:100%;padding:14px 15px;border:1px solid #303544;border-radius:12px;background:#080a0f;color:white;outline:none;font-size:15px}
+input:focus{border-color:#6366f1;box-shadow:0 0 0 3px #6366f122}
+button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;background:#6366f1;color:white;font-weight:800;font-size:15px;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.status{min-height:22px;margin-top:15px;font-size:14px}.ok{color:#4ade80}.err{color:#fb7185}
+.small{font-size:12px;color:#6b7280;margin-top:18px}.api{display:none;margin-top:20px;padding:14px;border-radius:12px;background:#0b0d12;border:1px solid #252a35;word-break:break-all}
+code{color:#a5b4fc}
+</style>
+</head>
+<body>
+<main class="card">
+<div class="logo">T</div>
+<h1 id="title">One-time TMDB setup</h1>
+<p id="desc">Enter your TMDB API key once. This page validates it and stores it securely in Cloudflare KV. You won't need to enter it again after deployment.</p>
+<form id="form">
+<label for="key">TMDB API key</label>
+<input id="key" type="password" autocomplete="off" placeholder="Paste your TMDB v3 API key" required>
+<button id="save">Save key & start API</button>
+</form>
+<div id="status" class="status"></div>
+<div id="api" class="api"></div>
+<div class="small">The key is never returned by the API. Setup becomes locked after the first successful save.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+async function status(){
+ try{
+  const r=await fetch('/api/setup/status'); const j=await r.json();
+  if(j.configured){
+   $('title').textContent='TMDB API is configured ✓';
+   $('desc').textContent='Setup is complete. The API is ready to accept stream requests.';
+   $('form').style.display='none';
+   $('status').className='status ok'; $('status').textContent='Key saved successfully.';
+   $('api').style.display='block';
+   $('api').innerHTML='<b>API endpoint</b><br><code>'+location.origin+'/api/streams/movie/{tmdbId}</code><br><br><b>Series</b><br><code>'+location.origin+'/api/streams/series/{tmdbId}?season=1&episode=1</code>';
+  }
+ }catch(e){}
+}
+$('form').addEventListener('submit',async e=>{
+ e.preventDefault(); $('save').disabled=true; $('status').className='status'; $('status').textContent='Validating TMDB key…';
+ try{
+  const r=await fetch('/api/setup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tmdbApiKey:$('key').value.trim()})});
+  const j=await r.json();
+  if(!r.ok) throw new Error(j.message||j.error||'Setup failed');
+  $('status').className='status ok'; $('status').textContent='Saved. API is ready.';
+  $('key').value=''; await status();
+ }catch(e){$('status').className='status err';$('status').textContent=e.message}
+ finally{$('save').disabled=false}
+});
+status();
+</script>
+</body>
+</html>
